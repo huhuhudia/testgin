@@ -1,0 +1,108 @@
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        .textarea{
+            height: 80%;
+            width: 100%;
+        }
+        #image-file{
+            position: relative;
+            right:  0px;
+            height: 20%;
+            width: 80%;
+        }
+
+        #input{
+            position: relative;
+            height: 20%;
+            width: 100%;
+        }
+        #urls{
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+
+filename<input id="filename" type="text">
+password<input id="password" type="text">
+<button onclick="uploadContent()">submit</button>
+<textarea ></textarea>
+<script>
+    var easyMDE = new EasyMDE();
+</script>
+
+<div id="input">
+    <input id="image-file" type="file" required/>
+    <button onclick="uploadImage()">Submit</button>
+    <textarea id="urls">
+        </textarea>
+</div>
+
+<script>
+    let req = new XMLHttpRequest()
+    req.onreadystatechange = function(){
+        if( req.readyState == XMLHttpRequest.DONE && req.status === 200){
+            easyMDE.value(req.response)
+
+        }
+    }
+    path = window.location.pathname
+    start = path.indexOf("/",1)
+    path = path.substr(start, path.length-start)
+
+    req.open("GET",path)
+    req.send()
+    filenameNode = document.getElementById("filename")
+    filename = path.split("/")
+    filename = filename[filename.length-1]
+    filenameNode.value = filename
+
+
+    function uploadContent() {
+        filenameNode = document.getElementById("filename")
+        filename = filenameNode.value
+        if(filename.length === 0) {
+            alert("no file name")
+        }
+        pwdNode = document.getElementById("password")
+        pwd = pwdNode.value
+        if(pwd.length === 0) {
+            alert("no file name")
+        }
+
+        content = easyMDE.value()
+        let req = new XMLHttpRequest()
+        req.onreadystatechange = function(){
+            if( req.readyState == XMLHttpRequest.DONE && req.status == 200){
+                alert("success!")
+
+            }else {
+                alert(JSON.parse(req.response)["reason"])
+            }
+        }
+
+        req.open("PUT", "/notes")
+        req.send(JSON.stringify({"filename":filename,"content":content, "password":pwd}))
+    }
+</script>
+
+<script>
+    function uploadImage(){
+        let photos = document.getElementById("image-file")
+        let req = new XMLHttpRequest()
+        let formData = new FormData()
+        formData.append("upload[]", photos.files[0])
+        req.onreadystatechange = function(){
+            if( req.readyState == XMLHttpRequest.DONE && req.status === 200){
+                ulrs = document.getElementById("urls")
+                ulrs.value = req.response
+            }
+        }
+        req.open("POST", '/image')
+        req.send(formData)
+    }
+</script>
+</body>

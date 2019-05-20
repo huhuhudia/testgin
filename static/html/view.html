@@ -1,0 +1,27 @@
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+
+</head>
+<body>
+<textarea ></textarea>
+<script>
+    var easyMDE = new EasyMDE();
+
+    let req = new XMLHttpRequest()
+    req.onreadystatechange = function(){
+        if( req.readyState == XMLHttpRequest.DONE && req.status === 200){
+            easyMDE.value(req.response)
+        }
+    }
+    path = window.location.pathname
+    start = path.indexOf("/",1)
+    path = path.substr(start, path.length-start)
+
+    req.open("GET",path)
+    req.send()
+</script>
+
+
+
+</body>
